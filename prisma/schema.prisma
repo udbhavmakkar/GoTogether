@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  passwordHash    String    @default("")
+  gender          Gender?
+  hostedRides     Ride[]    @relation("HostedRides")
+  rideBookings    Booking[]
+  sentMessages    Message[] @relation("SentMessages")
+  sessions        Session[]
+  createdAt       DateTime  @default(now())
+}
+
+model Ride {
+  id            String    @id @default(cuid())
+  hostId        String
+  startLocation String
+  destination   String
+  departureDate DateTime
+  departureTime String
+  totalSeats    Int
+  womenOnly     Boolean   @default(false)
+  notes         String?
+  price         Float?
+  createdAt     DateTime  @default(now())
+  host          User      @relation("HostedRides", fields: [hostId], references: [id], onDelete: Cascade)
+  joinedUsers   Booking[]
+  messages      Message[]
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  userId    String
+  rideId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ride      Ride     @relation(fields: [rideId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rideId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  rideId    String
+  senderId  String
+  text      String
+  createdAt DateTime @default(now())
+  ride      Ride     @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
