@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { hasRideTimeConflict } from "@/lib/ride-time";
 
 export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -39,6 +40,34 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
         throw new Error("RIDE_FULL");
       }
 
+      const conflictingRides = await tx.ride.findMany({
+        where: {
+          id: {
+            not: ride.id,
+          },
+          OR: [
+            {
+              hostId: currentUser.id,
+            },
+            {
+              joinedUsers: {
+                some: {
+                  userId: currentUser.id,
+                },
+              },
+            },
+          ],
+        },
+        select: {
+          departureDate: true,
+          departureTime: true,
+        },
+      });
+
+      if (hasRideTimeConflict(ride.departureDate, ride.departureTime, conflictingRides)) {
+        throw new Error("RIDE_TIME_CONFLICT");
+      }
+
       await tx.booking.create({
         data: {
           rideId: ride.id,
@@ -68,6 +97,10 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
       if (error.message === "WOMEN_ONLY_RIDE") {
         return NextResponse.json({ error: "This ride is restricted to women only." }, { status: 403 });
+      }
+
+      if (error.message === "RIDE_TIME_CONFLICT") {
+        return NextResponse.json({ error: "You already have another ride around the same time." }, { status: 409 });
       }
     }
 

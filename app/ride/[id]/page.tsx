@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CalendarDays, Clock3, MapPin, Users } from "lucide-react";
 
 import { ChatPanel } from "@/components/chat-panel";
+import { DeleteRideButton } from "@/components/delete-ride-button";
 import { JoinRideButton } from "@/components/join-ride-button";
 import { LeaveRideButton } from "@/components/leave-ride-button";
 import { Badge } from "@/components/ui/badge";
@@ -114,7 +115,10 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                   {isHost ? "You are hosting this ride" : "You are part of this ride"}
                 </Badge>
                 {isHost ? (
-                  <p className="text-sm text-slate-500">Hosts stay attached to their own ride.</p>
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-500">Hosts stay attached to their own ride unless they delete it.</p>
+                    <DeleteRideButton rideId={ride.id} />
+                  </div>
                 ) : (
                   <LeaveRideButton rideId={ride.id} />
                 )}

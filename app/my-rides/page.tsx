@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { startOfToday } from "date-fns";
 
 import { RideList } from "@/components/ride-list";
 import { Button } from "@/components/ui/button";
@@ -47,9 +46,7 @@ export default async function MyRidesPage() {
     );
   }
 
-  const today = startOfToday();
-  const { upcomingHosted, upcomingJoined } = await getUserRideCollections(currentUser.id, today);
-  const joinedOnly = upcomingJoined.filter((ride) => ride.hostId !== currentUser.id);
+  const { upcomingHosted, upcomingJoined } = await getUserRideCollections(currentUser.id, new Date());
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-12">
@@ -70,7 +67,7 @@ export default async function MyRidesPage() {
         <RideList
           title="Rides you joined"
           description="Upcoming rides where you are riding with someone else."
-          rides={joinedOnly}
+          rides={upcomingJoined}
           currentUserId={currentUser.id}
           emptyText="You have not joined any upcoming rides."
         />

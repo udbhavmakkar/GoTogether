@@ -52,6 +52,14 @@ export async function leaveRide(rideId: string) {
   );
 }
 
+export async function deleteRide(rideId: string) {
+  return parseResponse<{ success: boolean }>(
+    await fetch(`/api/rides/${rideId}`, {
+      method: "DELETE",
+    }),
+  );
+}
+
 export async function sendMessage(rideId: string, text: string) {
   return parseResponse<{ success: boolean }>(
     await fetch(`/api/rides/${rideId}/messages`, {

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isUpcomingRide } from "@/lib/ride-time";
 
 const rideInclude = {
   host: true,
@@ -45,22 +46,19 @@ export async function listRides() {
   });
 }
 
-export async function getUserRideCollections(userId: string, today: Date) {
-  const [upcomingHosted, upcomingJoined, pastHosted, pastJoined] = await Promise.all([
+export async function getUserRideCollections(userId: string, now: Date) {
+  const [hostedRides, joinedRides] = await Promise.all([
     prisma.ride.findMany({
       where: {
         hostId: userId,
-        departureDate: {
-          gte: today,
-        },
       },
       include: rideInclude,
       orderBy: [{ departureDate: "asc" }, { departureTime: "asc" }],
     }),
     prisma.ride.findMany({
       where: {
-        departureDate: {
-          gte: today,
+        hostId: {
+          not: userId,
         },
         joinedUsers: {
           some: {
@@ -70,32 +68,13 @@ export async function getUserRideCollections(userId: string, today: Date) {
       },
       include: rideInclude,
       orderBy: [{ departureDate: "asc" }, { departureTime: "asc" }],
-    }),
-    prisma.ride.findMany({
-      where: {
-        hostId: userId,
-        departureDate: {
-          lt: today,
-        },
-      },
-      include: rideInclude,
-      orderBy: [{ departureDate: "desc" }, { departureTime: "desc" }],
-    }),
-    prisma.ride.findMany({
-      where: {
-        departureDate: {
-          lt: today,
-        },
-        joinedUsers: {
-          some: {
-            userId,
-          },
-        },
-      },
-      include: rideInclude,
-      orderBy: [{ departureDate: "desc" }, { departureTime: "desc" }],
     }),
   ]);
+
+  const upcomingHosted = hostedRides.filter((ride) => isUpcomingRide(ride.departureDate, ride.departureTime, now));
+  const pastHosted = hostedRides.filter((ride) => !isUpcomingRide(ride.departureDate, ride.departureTime, now));
+  const upcomingJoined = joinedRides.filter((ride) => isUpcomingRide(ride.departureDate, ride.departureTime, now));
+  const pastJoined = joinedRides.filter((ride) => !isUpcomingRide(ride.departureDate, ride.departureTime, now));
 
   return {
     upcomingHosted,

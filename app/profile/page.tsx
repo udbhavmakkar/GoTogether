@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { startOfToday } from "date-fns";
 
 import { RideList } from "@/components/ride-list";
 import { ProfileManager } from "@/components/profile-manager";
@@ -51,9 +50,7 @@ export default async function ProfilePage() {
     );
   }
 
-  const today = startOfToday();
-  const rideCollections = await getUserRideCollections(currentUser.id, today);
-  const pastJoinedOnly = rideCollections.pastJoined.filter((ride) => ride.hostId !== currentUser.id);
+  const rideCollections = await getUserRideCollections(currentUser.id, new Date());
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-12">
@@ -76,7 +73,7 @@ export default async function ProfilePage() {
         <RideList
           title="Past rides you joined"
           description="Trips you were part of as a passenger."
-          rides={pastJoinedOnly}
+          rides={rideCollections.pastJoined}
           currentUserId={currentUser.id}
           emptyText="You have not joined any past rides yet."
           variant="past"
