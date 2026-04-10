@@ -19,12 +19,22 @@ export function GoogleAuthCard({ mode }: GoogleAuthCardProps) {
         <p className="text-sm leading-6 text-slate-600">
           Continue with Google using your <code>@vitstudent.ac.in</code> account. Your name and email are taken directly from Google.
         </p>
+        <p className="text-xs leading-5 text-slate-500">
+          If your phone defaults to a personal Gmail account, tap to choose another account and select or add your VIT student Google ID.
+        </p>
         <Button
           type="button"
           onClick={() =>
-            signIn("google", {
-              callbackUrl: "/complete-profile",
-            })
+            signIn(
+              "google",
+              {
+                callbackUrl: "/complete-profile",
+              },
+              {
+                prompt: "select_account",
+                hd: "vitstudent.ac.in",
+              },
+            )
           }
         >
           {mode === "login" ? "Sign in with Google" : "Continue with Google"}

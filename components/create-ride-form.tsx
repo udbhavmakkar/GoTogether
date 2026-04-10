@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { DROP_LOCATIONS, PICKUP_POINTS, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
+import { ALL_LOCATIONS, getLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
 
 type CreateRideFormProps = {
   currentUserGender: "MALE" | "FEMALE" | "OTHER";
@@ -32,6 +32,8 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
   function updateField(field: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
   }
+
+  const destinationOptions = getLocationOptionsForSelection(form.startLocation);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -74,7 +76,7 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
               onChange={(event) => updateField("startLocation", event.target.value)}
             >
               <option value="">Select pickup point</option>
-              {PICKUP_POINTS.map((pickupPoint) => (
+              {ALL_LOCATIONS.map((pickupPoint) => (
                 <option key={pickupPoint} value={pickupPoint}>
                   {pickupPoint}
                 </option>
@@ -91,12 +93,22 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
               onChange={(event) => updateField("destination", event.target.value)}
             >
               <option value="">Select drop location</option>
-              {DROP_LOCATIONS.map((dropLocation) => (
-                <option key={dropLocation} value={dropLocation}>
-                  {dropLocation}
-                </option>
-              ))}
+              <optgroup label={destinationOptions.primaryLabel}>
+                {destinationOptions.primaryOptions.map((dropLocation) => (
+                  <option key={dropLocation} value={dropLocation}>
+                    {dropLocation}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={destinationOptions.secondaryLabel}>
+                {destinationOptions.secondaryOptions.map((dropLocation) => (
+                  <option key={dropLocation} value={dropLocation}>
+                    {dropLocation}
+                  </option>
+                ))}
+              </optgroup>
             </select>
+            <p className="text-xs text-slate-500">Drop suggestions adapt to your pickup point, but you can still choose any listed location.</p>
           </div>
           <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">

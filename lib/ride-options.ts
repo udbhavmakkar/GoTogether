@@ -1,4 +1,4 @@
-export const PICKUP_POINTS = [
+export const VIT_LOCATIONS = [
   "VIT Main Gate",
   "Mens Hostel - A",
   "Mens Hostel - B",
@@ -30,7 +30,7 @@ export const PICKUP_POINTS = [
   "RGT",
 ] as const;
 
-export const DROP_LOCATIONS = [
+export const EXTERNAL_LOCATIONS = [
   "Chennai Airport",
   "Bengaluru Airport",
   "Chitoor BusStand",
@@ -39,8 +39,58 @@ export const DROP_LOCATIONS = [
   "CMC",
 ] as const;
 
+export const ALL_LOCATIONS = [...VIT_LOCATIONS, ...EXTERNAL_LOCATIONS] as const;
+
 export const TOTAL_SEAT_OPTIONS = [2, 3, 4, 5, 6] as const;
 
-export type PickupPoint = (typeof PICKUP_POINTS)[number];
-export type DropLocation = (typeof DROP_LOCATIONS)[number];
+export type RideLocation = (typeof ALL_LOCATIONS)[number];
 export type TotalSeatOption = (typeof TOTAL_SEAT_OPTIONS)[number];
+export type LocationCategory = "vit" | "external";
+
+const VIT_LOCATION_SET = new Set<string>(VIT_LOCATIONS);
+const EXTERNAL_LOCATION_SET = new Set<string>(EXTERNAL_LOCATIONS);
+
+export function getLocationCategory(location?: string | null): LocationCategory | null {
+  if (!location) {
+    return null;
+  }
+
+  if (VIT_LOCATION_SET.has(location)) {
+    return "vit";
+  }
+
+  if (EXTERNAL_LOCATION_SET.has(location)) {
+    return "external";
+  }
+
+  return null;
+}
+
+export function getLocationOptionsForSelection(selectedLocation?: string | null) {
+  const selectedCategory = getLocationCategory(selectedLocation);
+
+  if (selectedCategory === "vit") {
+    return {
+      primaryLabel: "Suggested destinations",
+      primaryOptions: EXTERNAL_LOCATIONS,
+      secondaryLabel: "Other locations",
+      secondaryOptions: VIT_LOCATIONS,
+    };
+  }
+
+  if (selectedCategory === "external") {
+    return {
+      primaryLabel: "Suggested destinations",
+      primaryOptions: VIT_LOCATIONS,
+      secondaryLabel: "Other locations",
+      secondaryOptions: EXTERNAL_LOCATIONS,
+    };
+  }
+
+  return {
+    primaryLabel: "VIT locations",
+    primaryOptions: VIT_LOCATIONS,
+    secondaryLabel: "External locations",
+    secondaryOptions: EXTERNAL_LOCATIONS,
+  };
+}

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { RideCard } from "@/components/ride-card";
 import { Label } from "@/components/ui/label";
-import { DROP_LOCATIONS, PICKUP_POINTS, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
+import { ALL_LOCATIONS, getLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
 
 type RideBrowserProps = {
   currentUserGender?: "MALE" | "FEMALE" | "OTHER" | null;
@@ -64,9 +64,11 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
     });
   }, [rides, currentUserGender, startLocation, destination, timeBucket, womenOnlyFilter, passengerCount]);
 
+  const destinationOptions = getLocationOptionsForSelection(startLocation === "all" ? null : startLocation);
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-5">
         <div className="space-y-2">
           <Label htmlFor="start-location-filter">Pickup point</Label>
           <select
@@ -76,7 +78,7 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
             onChange={(event) => setStartLocation(event.target.value)}
           >
             <option value="all">All pickup points</option>
-            {PICKUP_POINTS.map((pickupPoint) => (
+            {ALL_LOCATIONS.map((pickupPoint) => (
               <option key={pickupPoint} value={pickupPoint}>
                 {pickupPoint}
               </option>
@@ -92,11 +94,20 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
             onChange={(event) => setDestination(event.target.value)}
           >
             <option value="all">All drop locations</option>
-            {DROP_LOCATIONS.map((dropLocation) => (
-              <option key={dropLocation} value={dropLocation}>
-                {dropLocation}
-              </option>
-            ))}
+            <optgroup label={destinationOptions.primaryLabel}>
+              {destinationOptions.primaryOptions.map((dropLocation) => (
+                <option key={dropLocation} value={dropLocation}>
+                  {dropLocation}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={destinationOptions.secondaryLabel}>
+              {destinationOptions.secondaryOptions.map((dropLocation) => (
+                <option key={dropLocation} value={dropLocation}>
+                  {dropLocation}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </div>
         <div className="space-y-2">

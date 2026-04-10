@@ -1,4 +1,4 @@
-import { DROP_LOCATIONS, PICKUP_POINTS, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
+import { ALL_LOCATIONS, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -9,8 +9,7 @@ function isVitStudentEmail(email: string) {
 }
 
 const allowedGenders = new Set(["MALE", "FEMALE", "OTHER"]);
-const allowedPickupPoints = new Set(PICKUP_POINTS);
-const allowedDropLocations = new Set(DROP_LOCATIONS);
+const allowedLocations = new Set(ALL_LOCATIONS);
 const allowedSeatCounts = new Set(TOTAL_SEAT_OPTIONS);
 
 function validateGender(gender?: string | null) {
@@ -31,11 +30,11 @@ export function validateRideInput(input: {
   notes?: string;
   price?: number | null;
 }) {
-  if (!input.startLocation || !allowedPickupPoints.has(input.startLocation as (typeof PICKUP_POINTS)[number])) {
+  if (!input.startLocation || !allowedLocations.has(input.startLocation as (typeof ALL_LOCATIONS)[number])) {
     return "Please select a valid pickup point.";
   }
 
-  if (!input.destination || !allowedDropLocations.has(input.destination as (typeof DROP_LOCATIONS)[number])) {
+  if (!input.destination || !allowedLocations.has(input.destination as (typeof ALL_LOCATIONS)[number])) {
     return "Please select a valid drop location.";
   }
 

@@ -12,24 +12,30 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
-      <section className="grid gap-8 rounded-[2rem] border border-slate-200 bg-white/80 p-8 shadow-soft lg:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-6 rounded-[2rem] border border-slate-200 bg-white/80 p-6 shadow-soft sm:p-8 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-5">
           <span className="inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
             Campus ride coordination
           </span>
           <div className="space-y-3">
-            <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-slate-900">Coordinate student rides without turning this into a taxi app.</h1>
+            <h1 className="max-w-2xl text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Coordinate student rides without turning this into a taxi app.</h1>
             <p className="max-w-2xl text-base leading-7 text-slate-600">
               Create a ride, share available seats, let others join, and keep coordination in one chat thread for the trip.
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link href="/create">Create Ride</Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/login">Login</Link>
-            </Button>
+            {currentUser ? (
+              <Button asChild variant="outline" size="lg">
+                <Link href="/my-rides">My Rides</Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline" size="lg">
+                <Link href="/login">Login</Link>
+              </Button>
+            )}
           </div>
         </div>
         <div className="grid gap-4 rounded-[1.5rem] bg-slate-900 p-6 text-slate-50">

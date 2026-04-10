@@ -7,11 +7,23 @@ export async function Navbar() {
 
   return (
     <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-bold tracking-tight text-slate-900">
-          GoTogether
-        </Link>
-        <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6">
+        <div className="flex items-center justify-between gap-3">
+          <Link href="/" className="text-lg font-bold tracking-tight text-slate-900">
+            GoTogether
+          </Link>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 sm:px-3 sm:text-xs">
+            {currentUser ? (
+              <>
+                <span className="sm:hidden">Signed in</span>
+                <span className="hidden sm:inline">{`Active: ${currentUser.name}`}</span>
+              </>
+            ) : (
+              "Not logged in"
+            )}
+          </span>
+        </div>
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-600 sm:text-sm">
           <Link href="/" className="transition hover:text-slate-900">
             Home
           </Link>
@@ -35,9 +47,6 @@ export async function Navbar() {
               </Link>
             </>
           )}
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-            {currentUser ? `Active: ${currentUser.name}` : "Not logged in"}
-          </span>
         </nav>
       </div>
     </header>
