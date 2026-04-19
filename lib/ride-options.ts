@@ -94,3 +94,17 @@ export function getLocationOptionsForSelection(selectedLocation?: string | null)
     secondaryOptions: EXTERNAL_LOCATIONS,
   };
 }
+
+export function getPublicLocationLabel(location?: string | null) {
+  const category = getLocationCategory(location);
+
+  if (category === "vit") {
+    return "VIT";
+  }
+
+  return location || "Unknown";
+}
+
+export function getPublicRideRoute(startLocation: string, destination: string) {
+  return `${getPublicLocationLabel(startLocation)} -> ${getPublicLocationLabel(destination)}`;
+}

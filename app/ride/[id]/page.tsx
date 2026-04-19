@@ -139,10 +139,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-semibold text-slate-900">{booking.user.name}</p>
-                    <p className="text-sm text-slate-500">
-                      {booking.user.email}
-                      {booking.user.gender ? ` • ${genderLabels[booking.user.gender]}` : " • Gender pending"}
-                    </p>
+                    <p className="text-sm text-slate-500">{booking.user.gender ? genderLabels[booking.user.gender] : "Gender pending"}</p>
                   </div>
                   {booking.userId === ride.hostId ? <Badge variant="secondary">Host</Badge> : null}
                 </div>

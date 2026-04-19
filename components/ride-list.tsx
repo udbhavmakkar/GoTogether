@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRideDate } from "@/lib/format";
+import { getPublicRideRoute } from "@/lib/ride-options";
 
 type RideListItem = {
   id: string;
+  startLocation: string;
   destination: string;
   departureDate: Date;
   departureTime: string;
@@ -51,12 +53,13 @@ export function RideList({
           rides.map((ride) => {
             const seatsLeft = ride.totalSeats - ride.joinedUsers.length;
             const isHost = currentUserId === ride.hostId;
+            const publicRoute = getPublicRideRoute(ride.startLocation, ride.destination);
 
             return (
               <div key={ride.id} className="rounded-2xl border border-slate-200 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-lg font-semibold text-slate-900">{ride.destination}</p>
+                    <p className="text-lg font-semibold text-slate-900">{publicRoute}</p>
                     <p className="mt-1 text-sm text-slate-500">
                       {formatRideDate(ride.departureDate)} at {ride.departureTime}
                     </p>

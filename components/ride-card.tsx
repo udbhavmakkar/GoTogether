@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { genderLabels } from "@/lib/constants";
 import { formatRideDate } from "@/lib/format";
+import { getPublicRideRoute } from "@/lib/ride-options";
 
 type RideCardProps = {
   ride: {
@@ -33,6 +34,7 @@ type RideCardProps = {
 
 export function RideCard({ ride }: RideCardProps) {
   const seatsLeft = ride.totalSeats - ride.joinedUsers.length;
+  const publicRoute = getPublicRideRoute(ride.startLocation, ride.destination);
 
   return (
     <Card className="overflow-hidden border-slate-200">
@@ -41,9 +43,9 @@ export function RideCard({ ride }: RideCardProps) {
           <div>
             <CardTitle className="flex items-center gap-2 text-xl">
               <MapPin className="h-5 w-5 text-sky-600" />
-              {ride.destination}
+              {publicRoute}
             </CardTitle>
-            <p className="mt-2 text-sm text-slate-600">Starting from {ride.startLocation}</p>
+            <p className="mt-2 text-sm text-slate-600">Open the ride to view the exact pickup point inside VIT.</p>
             <p className="mt-1 text-sm text-slate-500">
               Hosted by {ride.host.name}
               {ride.host.gender ? ` • ${genderLabels[ride.host.gender]}` : ""}

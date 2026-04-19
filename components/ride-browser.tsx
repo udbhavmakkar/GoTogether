@@ -142,7 +142,7 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
         ) : (
           <div className="space-y-2">
             <Label>Ride type</Label>
-            <div className="flex h-11 items-center rounded-xl border border-input bg-slate-50 px-3 text-sm text-slate-500">
+            <div className="min-h-11 rounded-xl border border-input bg-slate-50 px-3 py-2 text-sm leading-5 text-slate-500">
               Women-only rides are shown only to women users.
             </div>
           </div>

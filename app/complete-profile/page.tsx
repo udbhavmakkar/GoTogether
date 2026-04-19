@@ -13,7 +13,7 @@ export default async function CompleteProfilePage() {
   }
 
   if (currentUser.gender) {
-    redirect("/profile");
+    redirect("/");
   }
 
   return (

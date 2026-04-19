@@ -28,7 +28,7 @@ export function GoogleAuthCard({ mode }: GoogleAuthCardProps) {
             signIn(
               "google",
               {
-                callbackUrl: "/complete-profile",
+                callbackUrl: "/",
               },
               {
                 prompt: "select_account",
