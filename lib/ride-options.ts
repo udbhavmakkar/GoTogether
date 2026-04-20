@@ -30,6 +30,39 @@ export const VIT_LOCATIONS = [
   "RGT",
 ] as const;
 
+export const MENS_HOSTEL_BLOCKS = [
+  "Mens Hostel - A",
+  "Mens Hostel - B",
+  "Mens Hostel - C",
+  "Mens Hostel - D",
+  "Mens Hostel - E",
+  "Mens Hostel - F",
+  "Mens Hostel - G",
+  "Mens Hostel - H",
+  "Mens Hostel - J",
+  "Mens Hostel - K",
+  "Mens Hostel - L",
+  "Mens Hostel - M",
+  "Mens Hostel - N",
+  "Mens Hostel - P",
+  "Mens Hostel - Q",
+  "Mens Hostel - R",
+  "Mens Hostel - S",
+  "Mens Hostel - T",
+] as const;
+
+export const LADIES_HOSTEL_BLOCKS = [
+  "Ladies Hostel - A",
+  "Ladies Hostel - B",
+  "Ladies Hostel - C",
+  "Ladies Hostel - D",
+  "Ladies Hostel - E",
+  "Ladies Hostel - F",
+  "Ladies Hostel - G",
+  "Ladies Hostel - H",
+  "Ladies Hostel - J",
+] as const;
+
 export const EXTERNAL_LOCATIONS = [
   "Chennai Airport",
   "Bengaluru Airport",
@@ -49,11 +82,19 @@ export const FILTER_LOCATIONS = [
   "RGT",
   ...EXTERNAL_LOCATIONS,
 ] as const;
+export const CREATE_LOCATION_OPTIONS = [
+  "VIT Mens Hostel",
+  "VIT Ladies Hostel",
+  "VIT Main Gate",
+  "RGT",
+  ...EXTERNAL_LOCATIONS,
+] as const;
 
 export type RideLocation = (typeof ALL_LOCATIONS)[number];
 export type TotalSeatOption = (typeof TOTAL_SEAT_OPTIONS)[number];
 export type LocationCategory = "vit" | "external";
 export type FilterLocation = (typeof FILTER_LOCATIONS)[number];
+export type CreateLocationOption = (typeof CREATE_LOCATION_OPTIONS)[number];
 
 const VIT_LOCATION_SET = new Set<string>(VIT_LOCATIONS);
 const EXTERNAL_LOCATION_SET = new Set<string>(EXTERNAL_LOCATIONS);
@@ -64,6 +105,10 @@ export function getLocationCategory(location?: string | null): LocationCategory 
   }
 
   if (VIT_LOCATION_SET.has(location)) {
+    return "vit";
+  }
+
+  if (location === "VIT Mens Hostel" || location === "VIT Ladies Hostel") {
     return "vit";
   }
 
@@ -131,4 +176,26 @@ export function getFilterLocationLabel(location?: string | null) {
   }
 
   return location;
+}
+
+export function getHostelBlocksForOption(option?: string | null) {
+  if (option === "VIT Mens Hostel") {
+    return MENS_HOSTEL_BLOCKS;
+  }
+
+  if (option === "VIT Ladies Hostel") {
+    return LADIES_HOSTEL_BLOCKS;
+  }
+
+  return [];
+}
+
+export function resolveCreateLocation(option?: string | null, hostelBlock?: string | null) {
+  const hostelBlocks = getHostelBlocksForOption(option);
+
+  if (hostelBlocks.length > 0) {
+    return hostelBlock && hostelBlocks.some((block) => block === hostelBlock) ? hostelBlock : "";
+  }
+
+  return option || "";
 }

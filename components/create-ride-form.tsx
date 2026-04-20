@@ -9,7 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ALL_LOCATIONS, getLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
+import {
+  CREATE_LOCATION_OPTIONS,
+  getHostelBlocksForOption,
+  getLocationOptionsForSelection,
+  resolveCreateLocation,
+  TOTAL_SEAT_OPTIONS,
+} from "@/lib/ride-options";
 
 type CreateRideFormProps = {
   currentUserGender: "MALE" | "FEMALE" | "OTHER";
@@ -20,8 +26,10 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    startLocation: "",
-    destination: "",
+    startLocationOption: "",
+    startLocationBlock: "",
+    destinationOption: "",
+    destinationBlock: "",
     date: "",
     time: "",
     totalSeats: "4",
@@ -33,7 +41,11 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
-  const destinationOptions = getLocationOptionsForSelection(form.startLocation);
+  const resolvedStartLocation = resolveCreateLocation(form.startLocationOption, form.startLocationBlock);
+  const resolvedDestination = resolveCreateLocation(form.destinationOption, form.destinationBlock);
+  const destinationOptions = getLocationOptionsForSelection(resolvedStartLocation || form.startLocationOption);
+  const startLocationBlocks = getHostelBlocksForOption(form.startLocationOption);
+  const destinationLocationBlocks = getHostelBlocksForOption(form.destinationOption);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,8 +54,8 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
     startTransition(async () => {
       try {
         const result = await createRide({
-          startLocation: form.startLocation,
-          destination: form.destination,
+          startLocation: resolvedStartLocation,
+          destination: resolvedDestination,
           date: form.date,
           time: form.time,
           totalSeats: Number(form.totalSeats),
@@ -72,25 +84,56 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
               id="startLocation"
               className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
-              value={form.startLocation}
-              onChange={(event) => updateField("startLocation", event.target.value)}
+              value={form.startLocationOption}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  startLocationOption: event.target.value,
+                  startLocationBlock: "",
+                }))
+              }
             >
               <option value="">Select pickup point</option>
-              {ALL_LOCATIONS.map((pickupPoint) => (
+              {CREATE_LOCATION_OPTIONS.map((pickupPoint) => (
                 <option key={pickupPoint} value={pickupPoint}>
                   {pickupPoint}
                 </option>
               ))}
             </select>
           </div>
+          {startLocationBlocks.length > 0 ? (
+            <div className="space-y-2">
+              <Label htmlFor="startLocationBlock">Hostel block</Label>
+              <select
+                id="startLocationBlock"
+                className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                required
+                value={form.startLocationBlock}
+                onChange={(event) => updateField("startLocationBlock", event.target.value)}
+              >
+                <option value="">Select hostel block</option>
+                {startLocationBlocks.map((hostelBlock) => (
+                  <option key={hostelBlock} value={hostelBlock}>
+                    {hostelBlock}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           <div className="space-y-2">
             <Label htmlFor="destination">Drop location</Label>
             <select
               id="destination"
               className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
-              value={form.destination}
-              onChange={(event) => updateField("destination", event.target.value)}
+              value={form.destinationOption}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  destinationOption: event.target.value,
+                  destinationBlock: "",
+                }))
+              }
             >
               <option value="">Select drop location</option>
               <optgroup label={destinationOptions.primaryLabel}>
@@ -110,6 +153,25 @@ export function CreateRideForm({ currentUserGender }: CreateRideFormProps) {
             </select>
             <p className="text-xs text-slate-500">Drop suggestions adapt to your pickup point, but you can still choose any listed location.</p>
           </div>
+          {destinationLocationBlocks.length > 0 ? (
+            <div className="space-y-2">
+              <Label htmlFor="destinationBlock">Hostel block</Label>
+              <select
+                id="destinationBlock"
+                className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                required
+                value={form.destinationBlock}
+                onChange={(event) => updateField("destinationBlock", event.target.value)}
+              >
+                <option value="">Select hostel block</option>
+                {destinationLocationBlocks.map((hostelBlock) => (
+                  <option key={hostelBlock} value={hostelBlock}>
+                    {hostelBlock}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
