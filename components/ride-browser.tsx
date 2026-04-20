@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { RideCard } from "@/components/ride-card";
 import { Label } from "@/components/ui/label";
-import { ALL_LOCATIONS, getLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
+import { FILTER_LOCATIONS, getFilterLocationLabel, getLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
 
 type RideBrowserProps = {
   currentUserGender?: "MALE" | "FEMALE" | "OTHER" | null;
@@ -53,8 +53,8 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
         return false;
       }
 
-      const matchesStartLocation = startLocation === "all" || ride.startLocation === startLocation;
-      const matchesDestination = destination === "all" || ride.destination === destination;
+      const matchesStartLocation = startLocation === "all" || getFilterLocationLabel(ride.startLocation) === startLocation;
+      const matchesDestination = destination === "all" || getFilterLocationLabel(ride.destination) === destination;
 
       const matchesTime = timeBucket === "all" || getTimeBucket(ride.departureTime) === timeBucket;
       const matchesWomenOnly = womenOnlyFilter === "all" || (womenOnlyFilter === "women-only" ? ride.womenOnly : !ride.womenOnly);
@@ -78,7 +78,7 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
             onChange={(event) => setStartLocation(event.target.value)}
           >
             <option value="all">All pickup points</option>
-            {ALL_LOCATIONS.map((pickupPoint) => (
+            {FILTER_LOCATIONS.map((pickupPoint) => (
               <option key={pickupPoint} value={pickupPoint}>
                 {pickupPoint}
               </option>
@@ -95,18 +95,24 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
           >
             <option value="all">All drop locations</option>
             <optgroup label={destinationOptions.primaryLabel}>
-              {destinationOptions.primaryOptions.map((dropLocation) => (
+              {destinationOptions.primaryOptions
+                .map((dropLocation) => getFilterLocationLabel(dropLocation))
+                .filter((value, index, array) => array.indexOf(value) === index)
+                .map((dropLocation) => (
                 <option key={dropLocation} value={dropLocation}>
                   {dropLocation}
                 </option>
-              ))}
+                ))}
             </optgroup>
             <optgroup label={destinationOptions.secondaryLabel}>
-              {destinationOptions.secondaryOptions.map((dropLocation) => (
+              {destinationOptions.secondaryOptions
+                .map((dropLocation) => getFilterLocationLabel(dropLocation))
+                .filter((value, index, array) => array.indexOf(value) === index)
+                .map((dropLocation) => (
                 <option key={dropLocation} value={dropLocation}>
                   {dropLocation}
                 </option>
-              ))}
+                ))}
             </optgroup>
           </select>
         </div>

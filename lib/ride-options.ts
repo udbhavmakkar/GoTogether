@@ -42,10 +42,18 @@ export const EXTERNAL_LOCATIONS = [
 export const ALL_LOCATIONS = [...VIT_LOCATIONS, ...EXTERNAL_LOCATIONS] as const;
 
 export const TOTAL_SEAT_OPTIONS = [2, 3, 4, 5, 6] as const;
+export const FILTER_LOCATIONS = [
+  "VIT Mens Hostel",
+  "VIT Ladies Hostel",
+  "VIT Main Gate",
+  "RGT",
+  ...EXTERNAL_LOCATIONS,
+] as const;
 
 export type RideLocation = (typeof ALL_LOCATIONS)[number];
 export type TotalSeatOption = (typeof TOTAL_SEAT_OPTIONS)[number];
 export type LocationCategory = "vit" | "external";
+export type FilterLocation = (typeof FILTER_LOCATIONS)[number];
 
 const VIT_LOCATION_SET = new Set<string>(VIT_LOCATIONS);
 const EXTERNAL_LOCATION_SET = new Set<string>(EXTERNAL_LOCATIONS);
@@ -107,4 +115,20 @@ export function getPublicLocationLabel(location?: string | null) {
 
 export function getPublicRideRoute(startLocation: string, destination: string) {
   return `${getPublicLocationLabel(startLocation)} -> ${getPublicLocationLabel(destination)}`;
+}
+
+export function getFilterLocationLabel(location?: string | null) {
+  if (!location) {
+    return "Unknown";
+  }
+
+  if (location.startsWith("Mens Hostel - ")) {
+    return "VIT Mens Hostel";
+  }
+
+  if (location.startsWith("Ladies Hostel - ")) {
+    return "VIT Ladies Hostel";
+  }
+
+  return location;
 }
