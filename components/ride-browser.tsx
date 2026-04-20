@@ -43,6 +43,7 @@ function getTimeBucket(time: string) {
 export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
   const [startLocation, setStartLocation] = useState("all");
   const [destination, setDestination] = useState("all");
+  const [departureDate, setDepartureDate] = useState("");
   const [timeBucket, setTimeBucket] = useState("all");
   const [womenOnlyFilter, setWomenOnlyFilter] = useState("all");
   const [passengerCount, setPassengerCount] = useState("all");
@@ -55,20 +56,20 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
 
       const matchesStartLocation = startLocation === "all" || getFilterLocationLabel(ride.startLocation) === startLocation;
       const matchesDestination = destination === "all" || getFilterLocationLabel(ride.destination) === destination;
-
+      const matchesDate = departureDate === "" || ride.departureDate.slice(0, 10) === departureDate;
       const matchesTime = timeBucket === "all" || getTimeBucket(ride.departureTime) === timeBucket;
       const matchesWomenOnly = womenOnlyFilter === "all" || (womenOnlyFilter === "women-only" ? ride.womenOnly : !ride.womenOnly);
       const matchesPassengerCount = passengerCount === "all" || String(ride.totalSeats) === passengerCount;
 
-      return matchesStartLocation && matchesDestination && matchesTime && matchesWomenOnly && matchesPassengerCount;
+      return matchesStartLocation && matchesDestination && matchesDate && matchesTime && matchesWomenOnly && matchesPassengerCount;
     });
-  }, [rides, currentUserGender, startLocation, destination, timeBucket, womenOnlyFilter, passengerCount]);
+  }, [rides, currentUserGender, startLocation, destination, departureDate, timeBucket, womenOnlyFilter, passengerCount]);
 
   const destinationOptions = getLocationOptionsForSelection(startLocation === "all" ? null : startLocation);
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-6">
         <div className="space-y-2">
           <Label htmlFor="start-location-filter">Pickup point</Label>
           <select
@@ -115,6 +116,16 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
                 ))}
             </optgroup>
           </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="date-filter">Date</Label>
+          <input
+            id="date-filter"
+            type="date"
+            className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            value={departureDate}
+            onChange={(event) => setDepartureDate(event.target.value)}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="time-filter">Filter by departure time</Label>
