@@ -1,11 +1,15 @@
 import { ALL_LOCATIONS, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
 
+const ALLOWED_EMAIL_DOMAINS = ["vitstudent.ac.in", "vitalum.ac.in"] as const;
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function isVitStudentEmail(email: string) {
-  return email.toLowerCase().endsWith("@vitstudent.ac.in");
+function isVitEmail(email: string) {
+  const normalizedEmail = email.toLowerCase();
+
+  return ALLOWED_EMAIL_DOMAINS.some((domain) => normalizedEmail.endsWith(`@${domain}`));
 }
 
 const allowedGenders = new Set(["MALE", "FEMALE", "OTHER"]);
@@ -70,8 +74,8 @@ export function validateProfileInput(input: { name?: string; email?: string }) {
     return "Please enter a valid email.";
   }
 
-  if (!isVitStudentEmail(input.email)) {
-    return "Only @vitstudent.ac.in email addresses are allowed.";
+  if (!isVitEmail(input.email)) {
+    return "Only VIT student and alumni email addresses are allowed.";
   }
 
   return null;
@@ -104,8 +108,8 @@ export function validateLoginInput(input: { email?: string; password?: string })
     return "Please enter a valid email.";
   }
 
-  if (!isVitStudentEmail(input.email)) {
-    return "Only @vitstudent.ac.in email addresses are allowed.";
+  if (!isVitEmail(input.email)) {
+    return "Only VIT student and alumni email addresses are allowed.";
   }
 
   return validatePassword(input.password);

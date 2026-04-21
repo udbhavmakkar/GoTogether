@@ -76,10 +76,7 @@ export const ALL_LOCATIONS = [...VIT_LOCATIONS, ...EXTERNAL_LOCATIONS] as const;
 
 export const TOTAL_SEAT_OPTIONS = [2, 3, 4, 5, 6] as const;
 export const FILTER_LOCATIONS = [
-  "VIT Mens Hostel",
-  "VIT Ladies Hostel",
-  "VIT Main Gate",
-  "RGT",
+  "VIT",
   ...EXTERNAL_LOCATIONS,
 ] as const;
 export const CREATE_LOCATION_OPTIONS = [
@@ -109,6 +106,10 @@ export function getLocationCategory(location?: string | null): LocationCategory 
   }
 
   if (location === "VIT Mens Hostel" || location === "VIT Ladies Hostel") {
+    return "vit";
+  }
+
+  if (location === "VIT") {
     return "vit";
   }
 
@@ -167,15 +168,46 @@ export function getFilterLocationLabel(location?: string | null) {
     return "Unknown";
   }
 
-  if (location.startsWith("Mens Hostel - ")) {
-    return "VIT Mens Hostel";
-  }
-
-  if (location.startsWith("Ladies Hostel - ")) {
-    return "VIT Ladies Hostel";
+  if (
+    location === "VIT" ||
+    location === "VIT Main Gate" ||
+    location === "RGT" ||
+    location.startsWith("Mens Hostel - ") ||
+    location.startsWith("Ladies Hostel - ")
+  ) {
+    return "VIT";
   }
 
   return location;
+}
+
+export function getFilterLocationOptionsForSelection(selectedLocation?: string | null) {
+  const selectedCategory = getLocationCategory(selectedLocation);
+
+  if (selectedCategory === "vit") {
+    return {
+      primaryLabel: "Suggested destinations",
+      primaryOptions: EXTERNAL_LOCATIONS,
+      secondaryLabel: "Other locations",
+      secondaryOptions: ["VIT"] as const,
+    };
+  }
+
+  if (selectedCategory === "external") {
+    return {
+      primaryLabel: "Suggested destinations",
+      primaryOptions: ["VIT"] as const,
+      secondaryLabel: "Other locations",
+      secondaryOptions: EXTERNAL_LOCATIONS,
+    };
+  }
+
+  return {
+    primaryLabel: "VIT locations",
+    primaryOptions: ["VIT"] as const,
+    secondaryLabel: "External locations",
+    secondaryOptions: EXTERNAL_LOCATIONS,
+  };
 }
 
 export function getHostelBlocksForOption(option?: string | null) {

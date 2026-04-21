@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CalendarDays, Clock3, MapPin, Users } from "lucide-react";
 
 import { ChatPanel } from "@/components/chat-panel";
@@ -25,11 +25,15 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     notFound();
   }
 
+  if (!currentUser) {
+    redirect(`/login?message=ride-access&next=${encodeURIComponent(`/ride/${id}`)}`);
+  }
+
   const joinedUserIds = new Set(ride.joinedUsers.map((booking) => booking.userId));
-  const isJoined = currentUser ? joinedUserIds.has(currentUser.id) : false;
-  const isHost = currentUser ? currentUser.id === ride.hostId : false;
+  const isJoined = joinedUserIds.has(currentUser.id);
+  const isHost = currentUser.id === ride.hostId;
   const seatsLeft = ride.totalSeats - ride.joinedUsers.length;
-  const canJoin = Boolean(currentUser) && !isJoined && seatsLeft > 0;
+  const canJoin = !isJoined && seatsLeft > 0;
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-12 lg:grid-cols-[1.05fr_0.95fr]">
@@ -91,16 +95,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               </div>
               <p className="mt-2 text-base font-semibold text-slate-900">{ride.notes || "No extra notes provided."}</p>
             </div>
-            {!currentUser ? (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                Log in before joining rides or opening chat.
-                <div className="mt-3">
-                  <Button asChild variant="outline">
-                    <Link href="/login">Go to Login</Link>
-                  </Button>
-                </div>
-              </div>
-            ) : !currentUser.gender ? (
+            {!currentUser.gender ? (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                 Complete your profile before joining rides so other members can see your gender details.
                 <div className="mt-3">
@@ -151,7 +146,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <div>
-        {currentUser && isJoined ? (
+        {isJoined ? (
           <ChatPanel
             rideId={ride.id}
             currentUserId={currentUser.id}

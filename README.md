@@ -47,7 +47,7 @@ Peer-to-peer ride-sharing coordination app for students built with Next.js App R
 ## App flow
 
 1. Sign in with Google on `/login` or `/register`
-2. Access is allowed only for `@vitstudent.ac.in` accounts
+2. Access is allowed only for VIT student and alumni Google accounts (`@vitstudent.ac.in` and `@vitalum.ac.in`)
 3. Create a ride on `/create`
 4. Join rides from `/ride/[id]`
 5. Chat inside the ride once you are a member
@@ -56,4 +56,4 @@ Peer-to-peer ride-sharing coordination app for students built with Next.js App R
 
 - Route handlers live in `app/api` because this is the correct Next.js App Router convention.
 - PostgreSQL is configured through `prisma/schema.prisma`.
-- Google Sign-In is used for authentication with `@vitstudent.ac.in` restriction.
+- Google Sign-In is used for authentication with VIT student and alumni domain restrictions.

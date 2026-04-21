@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-export function ScrollToRidesButton() {
+export function ScrollToRidesButton({ label = "Available Rides" }: { label?: string }) {
   function handleClick() {
     const element = document.getElementById("available-rides");
     if (element) {
@@ -12,7 +12,7 @@ export function ScrollToRidesButton() {
 
   return (
     <Button variant="outline" size="lg" onClick={handleClick}>
-      Available Rides
+      {label}
     </Button>
   );
 }

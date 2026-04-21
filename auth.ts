@@ -3,8 +3,16 @@ import Google from "next-auth/providers/google";
 
 import { prisma } from "@/lib/db";
 
+const ALLOWED_EMAIL_DOMAINS = ["vitstudent.ac.in", "vitalum.ac.in"] as const;
+
 function isAllowedEmail(email?: string | null) {
-  return Boolean(email && email.toLowerCase().endsWith("@vitstudent.ac.in"));
+  if (!email) {
+    return false;
+  }
+
+  const normalizedEmail = email.toLowerCase();
+
+  return ALLOWED_EMAIL_DOMAINS.some((domain) => normalizedEmail.endsWith(`@${domain}`));
 }
 
 function getCleanDisplayName(name: string | null | undefined, email: string) {
@@ -35,7 +43,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       authorization: {
         params: {
           prompt: "select_account",
-          hd: "vitstudent.ac.in",
         },
       },
     }),

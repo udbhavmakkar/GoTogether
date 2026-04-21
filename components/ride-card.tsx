@@ -30,11 +30,13 @@ type RideCardProps = {
       };
     }>;
   };
+  requireLogin?: boolean;
 };
 
-export function RideCard({ ride }: RideCardProps) {
+export function RideCard({ ride, requireLogin = false }: RideCardProps) {
   const seatsLeft = ride.totalSeats - ride.joinedUsers.length;
   const publicRoute = getPublicRideRoute(ride.startLocation, ride.destination);
+  const rideHref = requireLogin ? `/login?message=ride-access&next=${encodeURIComponent(`/ride/${ride.id}`)}` : `/ride/${ride.id}`;
 
   return (
     <Card className="overflow-hidden border-slate-200">
@@ -46,10 +48,14 @@ export function RideCard({ ride }: RideCardProps) {
               {publicRoute}
             </CardTitle>
             <p className="mt-2 text-sm text-slate-600">Open the ride to view the exact pickup point inside VIT.</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Hosted by {ride.host.name}
-              {ride.host.gender ? ` • ${genderLabels[ride.host.gender]}` : ""}
-            </p>
+            {requireLogin ? (
+              <p className="mt-1 text-sm text-slate-500">Login to view host and passenger details.</p>
+            ) : (
+              <p className="mt-1 text-sm text-slate-500">
+                Hosted by {ride.host.name}
+                {ride.host.gender ? ` • ${genderLabels[ride.host.gender]}` : ""}
+              </p>
+            )}
             {ride.womenOnly ? <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-rose-600">Women only</p> : null}
           </div>
           <Badge variant={seatsLeft > 0 ? "success" : "warning"}>{seatsLeft > 0 ? `${seatsLeft} seats left` : "Ride full"}</Badge>
@@ -72,19 +78,23 @@ export function RideCard({ ride }: RideCardProps) {
         </div>
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Joined riders</p>
-          <div className="flex flex-wrap gap-2">
-            {ride.joinedUsers.map((booking) => (
-              <span key={booking.id} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                {booking.user.name}
-                {booking.user.gender ? ` • ${genderLabels[booking.user.gender]}` : " • Gender pending"}
-              </span>
-            ))}
-          </div>
+          {requireLogin ? (
+            <p className="text-sm text-slate-500">Login to see who has joined this ride.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {ride.joinedUsers.map((booking) => (
+                <span key={booking.id} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                  {booking.user.name}
+                  {booking.user.gender ? ` • ${genderLabels[booking.user.gender]}` : " • Gender pending"}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter>
         <Button asChild className="w-full">
-          <Link href={`/ride/${ride.id}`}>View Ride</Link>
+          <Link href={rideHref}>{requireLogin ? "Login to View Ride" : "View Ride"}</Link>
         </Button>
       </CardFooter>
     </Card>

@@ -4,10 +4,11 @@ import { useMemo, useState } from "react";
 
 import { RideCard } from "@/components/ride-card";
 import { Label } from "@/components/ui/label";
-import { FILTER_LOCATIONS, getFilterLocationLabel, getLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
+import { FILTER_LOCATIONS, getFilterLocationLabel, getFilterLocationOptionsForSelection, TOTAL_SEAT_OPTIONS } from "@/lib/ride-options";
 
 type RideBrowserProps = {
   currentUserGender?: "MALE" | "FEMALE" | "OTHER" | null;
+  requireLogin?: boolean;
   rides: Array<{
     id: string;
     startLocation: string;
@@ -40,7 +41,7 @@ function getTimeBucket(time: string) {
   return "night";
 }
 
-export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
+export function RideBrowser({ rides, currentUserGender, requireLogin = false }: RideBrowserProps) {
   const [startLocation, setStartLocation] = useState("all");
   const [destination, setDestination] = useState("all");
   const [departureDate, setDepartureDate] = useState("");
@@ -65,7 +66,7 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
     });
   }, [rides, currentUserGender, startLocation, destination, departureDate, timeBucket, womenOnlyFilter, passengerCount]);
 
-  const destinationOptions = getLocationOptionsForSelection(startLocation === "all" ? null : startLocation);
+  const destinationOptions = getFilterLocationOptionsForSelection(startLocation === "all" ? null : startLocation);
 
   return (
     <div className="space-y-6">
@@ -191,6 +192,7 @@ export function RideBrowser({ rides, currentUserGender }: RideBrowserProps) {
           {filteredRides.map((ride) => (
             <RideCard
               key={ride.id}
+              requireLogin={requireLogin}
               ride={{
                 ...ride,
                 departureDate: new Date(ride.departureDate),

@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type GoogleAuthCardProps = {
   mode: "login" | "register";
+  callbackUrl?: string;
 };
 
-export function GoogleAuthCard({ mode }: GoogleAuthCardProps) {
+export function GoogleAuthCard({ mode, callbackUrl = "/" }: GoogleAuthCardProps) {
   return (
     <Card className="border-slate-200">
       <CardHeader>
@@ -17,10 +18,10 @@ export function GoogleAuthCard({ mode }: GoogleAuthCardProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm leading-6 text-slate-600">
-          Continue with Google using your <code>@vitstudent.ac.in</code> account. Your name and email are taken directly from Google.
+          Continue with Google using your VIT email ID. Student and alumni accounts are supported, and your name and email are taken directly from Google.
         </p>
         <p className="text-xs leading-5 text-slate-500">
-          If your phone defaults to a personal Gmail account, tap to choose another account and select or add your VIT student Google ID.
+          If your phone defaults to a personal Gmail account, tap to choose another account and select or add your VIT Google account before continuing.
         </p>
         <Button
           type="button"
@@ -28,11 +29,10 @@ export function GoogleAuthCard({ mode }: GoogleAuthCardProps) {
             signIn(
               "google",
               {
-                callbackUrl: "/",
+                callbackUrl,
               },
               {
                 prompt: "select_account",
-                hd: "vitstudent.ac.in",
               },
             )
           }

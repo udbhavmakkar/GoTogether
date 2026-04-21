@@ -12,37 +12,86 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const currentUser = await getCurrentUser();
+  const rides = await listRides();
 
   // If logged in but profile incomplete, redirect to complete-profile
   if (currentUser && !currentUser.gender) {
     redirect("/complete-profile");
   }
 
-  // ── Unauthenticated: Landing page with GoTogether branding + login only ──
   if (!currentUser) {
     return (
-      <div className="mx-auto flex min-h-[calc(100vh-90px)] w-full max-w-6xl flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
-              GoTogether
-            </h1>
-            <p className="mx-auto max-w-xl text-lg leading-8 text-slate-600">
-              Campus ride coordination for VIT students. Share rides, split costs, travel together.
-            </p>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
+        <section className="grid gap-6 rounded-[2rem] border border-slate-200 bg-white/80 p-6 shadow-soft sm:p-8 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-5">
+            <div className="space-y-4">
+              <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+                GoTogether
+              </h1>
+              <p className="max-w-2xl text-lg leading-8 text-slate-600">
+                See active ride routes before you sign in. Login is required before opening a ride, viewing members, or joining a trip.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild size="lg">
+                <Link href="/login">Login with VIT Email</Link>
+              </Button>
+              <ScrollToRidesButton label="See Available Rides" />
+            </div>
           </div>
-          <div>
-            <Button asChild size="lg">
-              <Link href="/login">Login with VIT Email</Link>
-            </Button>
+          <div className="grid gap-4 rounded-[1.5rem] bg-slate-900 p-6 text-slate-50">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Live ride board</p>
+              <p className="mt-3 text-2xl font-semibold">{rides.length} active rides</p>
+            </div>
+            <div className="grid gap-3 text-sm text-slate-300">
+              <p>1. Check which routes are currently active.</p>
+              <p>2. Login with your VIT email ID to open ride details.</p>
+              <p>3. Join a ride and coordinate inside the ride chat.</p>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <section id="available-rides" className="scroll-mt-6 space-y-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Available rides</h2>
+              <p className="mt-1 text-sm text-slate-600">Routes, dates, timing, and seat availability are visible here. Member identities stay hidden until login.</p>
+            </div>
+          </div>
+
+          {rides.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <RideBrowser
+              requireLogin
+              rides={rides.map((ride) => ({
+                id: ride.id,
+                startLocation: ride.startLocation,
+                destination: ride.destination,
+                departureDate: ride.departureDate.toISOString(),
+                departureTime: ride.departureTime,
+                totalSeats: ride.totalSeats,
+                womenOnly: ride.womenOnly,
+                host: {
+                  name: ride.host.name,
+                  gender: ride.host.gender,
+                },
+                joinedUsers: ride.joinedUsers.map((booking) => ({
+                  id: booking.id,
+                  user: {
+                    id: booking.user.id,
+                    name: booking.user.name,
+                    gender: booking.user.gender,
+                  },
+                })),
+              }))}
+            />
+          )}
+        </section>
       </div>
     );
   }
-
-  // ── Authenticated: Home page with rides ──
-  const rides = await listRides();
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
