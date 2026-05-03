@@ -13,6 +13,11 @@ enum Gender {
   OTHER
 }
 
+enum NotificationType {
+  RIDE_JOINED
+  CHAT_MESSAGE
+}
+
 model User {
   id              String    @id @default(cuid())
   name            String
@@ -22,6 +27,7 @@ model User {
   hostedRides     Ride[]    @relation("HostedRides")
   rideBookings    Booking[]
   sentMessages    Message[] @relation("SentMessages")
+  notifications   Notification[]
   sessions        Session[]
   createdAt       DateTime  @default(now())
 }
@@ -41,6 +47,7 @@ model Ride {
   host          User      @relation("HostedRides", fields: [hostId], references: [id], onDelete: Cascade)
   joinedUsers   Booking[]
   messages      Message[]
+  notifications Notification[]
 }
 
 model Booking {
@@ -71,4 +78,19 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  rideId    String?
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ride      Ride?            @relation(fields: [rideId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
 }

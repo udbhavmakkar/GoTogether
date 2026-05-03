@@ -83,3 +83,41 @@ export async function fetchMessages(rideId: string) {
     }>;
   }>(await fetch(`/api/rides/${rideId}/messages`, { cache: "no-store" }));
 }
+
+export async function fetchNotifications() {
+  return parseResponse<{
+    unreadCount: number;
+    notifications: Array<{
+      id: string;
+      type: "RIDE_JOINED" | "CHAT_MESSAGE";
+      title: string;
+      body: string;
+      rideId: string | null;
+      isRead: boolean;
+      createdAt: string;
+    }>;
+  }>(await fetch("/api/notifications", { cache: "no-store" }));
+}
+
+export async function markAllNotificationsRead() {
+  return parseResponse<{ success: boolean }>(
+    await fetch("/api/notifications", {
+      method: "PATCH",
+    }),
+  );
+}
+
+export async function sendFeedback(payload: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  return parseResponse<{ success: boolean }>(
+    await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
+  );
+}

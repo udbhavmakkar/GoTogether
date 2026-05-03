@@ -1,10 +1,8 @@
 import Link from "next/link";
 
-import { RideList } from "@/components/ride-list";
 import { ProfileManager } from "@/components/profile-manager";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
-import { getUserRideCollections } from "@/lib/rides";
 
 export const dynamic = "force-dynamic";
 
@@ -50,34 +48,17 @@ export default async function ProfilePage() {
     );
   }
 
-  const rideCollections = await getUserRideCollections(currentUser.id, new Date());
-
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-12">
       <div className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">Profile</h1>
         <p className="text-sm text-slate-600">
-          Manage your account and review your ride history here.
+          Manage your account here. Expired rides are automatically removed from the system after their ride date passes.
         </p>
       </div>
       <ProfileManager currentUser={currentUser} />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <RideList
-          title="Past rides you hosted"
-          description="Trips you created that are already in the past."
-          rides={rideCollections.pastHosted}
-          currentUserId={currentUser.id}
-          emptyText="You have not hosted any past rides yet."
-          variant="past"
-        />
-        <RideList
-          title="Past rides you joined"
-          description="Trips you were part of as a passenger."
-          rides={rideCollections.pastJoined}
-          currentUserId={currentUser.id}
-          emptyText="You have not joined any past rides yet."
-          variant="past"
-        />
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-soft">
+        Old rides and their chat history are deleted automatically after the ride date has passed. User accounts stay active.
       </div>
     </div>
   );

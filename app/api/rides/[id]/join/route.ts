@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 
 import { requireCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { hasRideTimeConflict } from "@/lib/ride-time";
+import { sendRideJoinNotificationEmail } from "@/lib/email";
+import { createNotification, getRideNotificationRoute } from "@/lib/notifications";
+import { hasRideTimeConflict, isUpcomingRide } from "@/lib/ride-time";
 
 export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,17 +15,38 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     }
 
     const { id } = await params;
+    let joinEmailRecipients: string[] = [];
+    let routeLabel = "";
+    let departureDate: Date | null = null;
+    let departureTime = "";
 
     await prisma.$transaction(async (tx) => {
       const ride = await tx.ride.findUnique({
         where: { id },
         include: {
-          joinedUsers: true,
+          joinedUsers: {
+            include: {
+              user: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          },
+          host: {
+            select: {
+              email: true,
+            },
+          },
         },
       });
 
       if (!ride) {
         throw new Error("RIDE_NOT_FOUND");
+      }
+
+      if (!isUpcomingRide(ride.departureDate, ride.departureTime, new Date())) {
+        throw new Error("RIDE_EXPIRED");
       }
 
       if (ride.womenOnly && currentUser.gender !== "FEMALE") {
@@ -74,7 +97,52 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
           userId: currentUser.id,
         },
       });
+
+      const notificationRecipientIds = Array.from(
+        new Set(
+          [ride.hostId, ...ride.joinedUsers.map((booking) => booking.userId)].filter(
+            (userId) => userId !== currentUser.id,
+          ),
+        ),
+      );
+
+      const notificationRouteLabel = getRideNotificationRoute(ride.startLocation, ride.destination);
+
+      await Promise.all(
+        notificationRecipientIds.map((userId) =>
+          createNotification(tx, {
+            userId,
+            rideId: ride.id,
+            type: "RIDE_JOINED",
+            actorName: currentUser.name,
+            routeLabel: notificationRouteLabel,
+          }),
+        ),
+      );
+
+      joinEmailRecipients = Array.from(
+        new Set(
+          [ride.host.email, ...ride.joinedUsers.map((booking) => booking.user.email)].filter(
+            (email) => email && email !== currentUser.email,
+          ),
+        ),
+      );
+      routeLabel = notificationRouteLabel;
+      departureDate = ride.departureDate;
+      departureTime = ride.departureTime;
     });
+
+    if (joinEmailRecipients.length > 0 && departureDate) {
+      void sendRideJoinNotificationEmail({
+        bccRecipients: joinEmailRecipients,
+        joinerName: currentUser.name,
+        routeLabel,
+        departureDate,
+        departureTime,
+      }).catch(() => {
+        // Email delivery is best-effort and must not break ride joining.
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -93,6 +161,10 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
       if (error.message === "RIDE_NOT_FOUND") {
         return NextResponse.json({ error: "Ride not found." }, { status: 404 });
+      }
+
+      if (error.message === "RIDE_EXPIRED") {
+        return NextResponse.json({ error: "This ride has already started or ended." }, { status: 409 });
       }
 
       if (error.message === "WOMEN_ONLY_RIDE") {

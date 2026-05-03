@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getCurrentUser } from "@/lib/auth";
+import { NotificationBell } from "@/components/notification-bell";
 
 export async function Navbar() {
   const currentUser = await getCurrentUser();
@@ -21,16 +22,19 @@ export async function Navbar() {
             />
             <span className="truncate text-base font-bold tracking-tight sm:text-lg">GoTogether</span>
           </Link>
-          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 sm:px-3 sm:text-xs">
-            {currentUser ? (
-              <>
-                <span className="sm:hidden">Signed in</span>
-                <span className="hidden sm:inline">{`Active: ${currentUser.name}`}</span>
-              </>
-            ) : (
-              "Not logged in"
-            )}
-          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            {currentUser ? <NotificationBell /> : null}
+            <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 sm:px-3 sm:text-xs">
+              {currentUser ? (
+                <>
+                  <span className="sm:hidden">Signed in</span>
+                  <span className="hidden sm:inline">{`Active: ${currentUser.name}`}</span>
+                </>
+              ) : (
+                "Not logged in"
+              )}
+            </span>
+          </div>
         </div>
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-600 sm:text-sm">
           <Link href="/" className="transition hover:text-slate-900">
@@ -41,6 +45,9 @@ export async function Navbar() {
           </Link>
           <Link href="/my-rides" className="transition hover:text-slate-900">
             My Rides
+          </Link>
+          <Link href="/feedback" className="transition hover:text-slate-900">
+            Feedback
           </Link>
           {currentUser ? (
             <Link href="/profile" className="transition hover:text-slate-900">

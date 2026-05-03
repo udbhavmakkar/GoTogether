@@ -5,14 +5,13 @@ import { RideBrowser } from "@/components/ride-browser";
 import { ScrollToRidesButton } from "@/components/scroll-to-rides-button";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
-import { listRides } from "@/lib/rides";
+import { listPublicRides, listRides } from "@/lib/rides";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const currentUser = await getCurrentUser();
-  const rides = await listRides();
 
   // If logged in but profile incomplete, redirect to complete-profile
   if (currentUser && !currentUser.gender) {
@@ -20,6 +19,8 @@ export default async function HomePage() {
   }
 
   if (!currentUser) {
+    const rides = await listPublicRides();
+
     return (
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
         <section className="grid gap-6 rounded-[2rem] border border-slate-200 bg-white/80 p-6 shadow-soft sm:p-8 lg:grid-cols-[1.2fr_0.8fr]">
@@ -48,6 +49,7 @@ export default async function HomePage() {
               <p>1. Check which routes are currently active.</p>
               <p>2. Login with your VIT email ID to open ride details.</p>
               <p>3. Join a ride and coordinate inside the ride chat.</p>
+              <p>4. Get notified on email when your ride updates. If you do not see it, check your spam folder.</p>
             </div>
           </div>
         </section>
@@ -63,35 +65,14 @@ export default async function HomePage() {
           {rides.length === 0 ? (
             <EmptyState />
           ) : (
-            <RideBrowser
-              requireLogin
-              rides={rides.map((ride) => ({
-                id: ride.id,
-                startLocation: ride.startLocation,
-                destination: ride.destination,
-                departureDate: ride.departureDate.toISOString(),
-                departureTime: ride.departureTime,
-                totalSeats: ride.totalSeats,
-                womenOnly: ride.womenOnly,
-                host: {
-                  name: ride.host.name,
-                  gender: ride.host.gender,
-                },
-                joinedUsers: ride.joinedUsers.map((booking) => ({
-                  id: booking.id,
-                  user: {
-                    id: booking.user.id,
-                    name: booking.user.name,
-                    gender: booking.user.gender,
-                  },
-                })),
-              }))}
-            />
+            <RideBrowser requireLogin rides={rides} />
           )}
         </section>
       </div>
     );
   }
+
+  const rides = await listRides();
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
@@ -122,6 +103,7 @@ export default async function HomePage() {
             <p>1. Create a ride with pickup point, drop location, timing, and total people</p>
             <p>2. Filter rides and pick the group that fits your travel needs</p>
             <p>3. Join a ride and coordinate in the chat thread</p>
+            <p>4. Get notified on email when your ride updates. If you do not see it, check your spam folder.</p>
           </div>
         </div>
       </section>
@@ -137,30 +119,7 @@ export default async function HomePage() {
         {rides.length === 0 ? (
           <EmptyState />
         ) : (
-          <RideBrowser
-            currentUserGender={currentUser?.gender}
-            rides={rides.map((ride) => ({
-              id: ride.id,
-              startLocation: ride.startLocation,
-              destination: ride.destination,
-              departureDate: ride.departureDate.toISOString(),
-              departureTime: ride.departureTime,
-              totalSeats: ride.totalSeats,
-              womenOnly: ride.womenOnly,
-              host: {
-                name: ride.host.name,
-                gender: ride.host.gender,
-              },
-              joinedUsers: ride.joinedUsers.map((booking) => ({
-                id: booking.id,
-                user: {
-                  id: booking.user.id,
-                  name: booking.user.name,
-                  gender: booking.user.gender,
-                },
-              })),
-            }))}
-          />
+          <RideBrowser currentUserGender={currentUser?.gender} rides={rides} />
         )}
       </section>
     </div>

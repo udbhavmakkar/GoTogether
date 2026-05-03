@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 import { requireCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { sendRideChatNotificationEmail } from "@/lib/email";
+import { createNotification, getRideNotificationRoute } from "@/lib/notifications";
 import { validateMessage } from "@/lib/validators";
 
 async function ensureMembership(rideId: string, userId: string) {
@@ -90,13 +92,81 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Only ride members can send chat messages." }, { status: 403 });
     }
 
-    await prisma.message.create({
-      data: {
-        rideId: id,
-        senderId: currentUser.id,
-        text: body.text!.trim(),
-      },
+    let recipientEmails: string[] = [];
+    let routeLabel = "";
+    let departureDate: Date | null = null;
+    let departureTime = "";
+
+    await prisma.$transaction(async (tx) => {
+      const ride = await tx.ride.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          startLocation: true,
+          destination: true,
+          departureDate: true,
+          departureTime: true,
+          joinedUsers: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!ride) {
+        throw new Error("RIDE_NOT_FOUND");
+      }
+
+      await tx.message.create({
+        data: {
+          rideId: id,
+          senderId: currentUser.id,
+          text: body.text!.trim(),
+        },
+      });
+
+      const recipientIds = Array.from(
+        new Set(ride.joinedUsers.map((booking) => booking.user.id).filter((userId) => userId !== currentUser.id)),
+      );
+
+      recipientEmails = Array.from(
+        new Set(ride.joinedUsers.map((booking) => booking.user.email).filter((email) => email !== currentUser.email)),
+      );
+
+      routeLabel = getRideNotificationRoute(ride.startLocation, ride.destination);
+      departureDate = ride.departureDate;
+      departureTime = ride.departureTime;
+
+      await Promise.all(
+        recipientIds.map((userId) =>
+          createNotification(tx, {
+            userId,
+            rideId: ride.id,
+            type: "CHAT_MESSAGE",
+            actorName: currentUser.name,
+            routeLabel,
+          }),
+        ),
+      );
     });
+
+    if (recipientEmails.length > 0 && departureDate) {
+      void sendRideChatNotificationEmail({
+        bccRecipients: recipientEmails,
+        senderName: currentUser.name,
+        routeLabel,
+        departureDate,
+        departureTime,
+      }).catch(() => {
+        // Email delivery is best-effort and must not break chat.
+      });
+    }
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {

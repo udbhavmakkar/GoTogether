@@ -29,6 +29,13 @@ Peer-to-peer ride-sharing coordination app for students built with Next.js App R
    cp .env.example .env
    ```
 
+   Optional email notification settings:
+
+   ```bash
+   RESEND_API_KEY=your_resend_api_key
+   RESEND_FROM_EMAIL=GoTogether <notifications@your-domain.com>
+   ```
+
 3. Configure PostgreSQL and create the Prisma client:
 
    ```bash
@@ -57,3 +64,4 @@ Peer-to-peer ride-sharing coordination app for students built with Next.js App R
 - Route handlers live in `app/api` because this is the correct Next.js App Router convention.
 - PostgreSQL is configured through `prisma/schema.prisma`.
 - Google Sign-In is used for authentication with VIT student and alumni domain restrictions.
+- Email notifications are optional and use Resend when `RESEND_API_KEY` and `RESEND_FROM_EMAIL` are configured.

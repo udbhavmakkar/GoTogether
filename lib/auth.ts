@@ -1,7 +1,9 @@
+import { cache } from "react";
+
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const session = await auth();
 
   if (!session?.user?.email) {
@@ -12,8 +14,14 @@ export async function getCurrentUser() {
     where: {
       email: session.user.email.toLowerCase(),
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      gender: true,
+    },
   });
-}
+});
 
 export async function requireCurrentUser() {
   const user = await getCurrentUser();

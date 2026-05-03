@@ -35,6 +35,7 @@ type RideCardProps = {
 
 export function RideCard({ ride, requireLogin = false }: RideCardProps) {
   const seatsLeft = ride.totalSeats - ride.joinedUsers.length;
+  const isFull = seatsLeft <= 0;
   const publicRoute = getPublicRideRoute(ride.startLocation, ride.destination);
   const rideHref = requireLogin ? `/login?message=ride-access&next=${encodeURIComponent(`/ride/${ride.id}`)}` : `/ride/${ride.id}`;
 
@@ -93,9 +94,15 @@ export function RideCard({ ride, requireLogin = false }: RideCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button asChild className="w-full">
-          <Link href={rideHref}>{requireLogin ? "Login to View Ride" : "View Ride"}</Link>
-        </Button>
+        {isFull ? (
+          <Button className="w-full" disabled>
+            Ride Full
+          </Button>
+        ) : (
+          <Button asChild className="w-full">
+            <Link href={rideHref}>{requireLogin ? "Login to View Ride" : "View Ride"}</Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
