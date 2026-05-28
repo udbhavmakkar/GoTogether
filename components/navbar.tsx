@@ -40,6 +40,9 @@ export async function Navbar() {
           <Link href="/" className="transition hover:text-slate-900">
             Home
           </Link>
+          <Link href="/providers" className="transition hover:text-slate-900">
+            Providers
+          </Link>
           <Link href="/create" className="transition hover:text-slate-900">
             Create Ride
           </Link>

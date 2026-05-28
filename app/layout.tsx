@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 
 import { Navbar } from "@/components/navbar";
+import { ProvidersAnnouncement } from "@/components/providers-announcement";
 
 export const metadata: Metadata = {
   title: "GoTogether",
@@ -16,6 +18,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <Navbar />
           <main>{children}</main>
         </div>
+        <ProvidersAnnouncement />
+        <Analytics />
       </body>
     </html>
   );
