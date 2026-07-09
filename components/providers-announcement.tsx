@@ -50,10 +50,21 @@ export function ProvidersAnnouncement() {
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">New on GoTogether</p>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Trusted cab providers are now listed.</h2>
-          <p className="text-sm leading-6 text-slate-600">
-            Browse provider contact numbers, cab types, and fare details directly on GoTogether.
-          </p>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Ganesh Taxis</h2>
+          <div className="space-y-2 text-sm leading-6 text-slate-600">
+            <p>
+              <span className="font-semibold text-slate-900">Phone number:</span> 7829976680
+            </p>
+            <p>
+              <span className="font-semibold text-slate-900">Price from Chennai to Vellore:</span> 2100/-
+            </p>
+            <p>
+              While talking to the person, take the name of{" "}
+              <span className="font-semibold text-slate-900">&quot;GoTogether website&quot;</span>. They will give
+              discount also.
+            </p>
+            <p>Any review of this person, put it in the suggestion/feedback box in the website.</p>
+          </div>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -62,7 +73,7 @@ export function ProvidersAnnouncement() {
             className="inline-flex flex-1 items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             onClick={() => setIsOpen(false)}
           >
-            Click here to view providers
+            View provider details
           </Link>
           <button
             type="button"

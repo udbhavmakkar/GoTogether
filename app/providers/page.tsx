@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CallProviderButton } from "@/components/call-provider-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { providers } from "@/lib/providers";
 
@@ -11,8 +12,8 @@ export default function ProvidersPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Trusted cab providers</h1>
           <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
-            Use this section when you need a direct cab option instead of a shared student ride. Contact the provider
-            directly for availability and final confirmation.
+            Get discounted rates from the trusted drivers listed below. These are some of the most genuine cab rates
+            for the VIT community. Contact the provider directly for booking and confirmation.
           </p>
         </div>
       </div>
@@ -63,7 +64,12 @@ export default function ProvidersPage() {
                         className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                       >
                         <span className="text-slate-600">{entry.label}</span>
-                        <span className="font-semibold text-slate-900">{entry.price}</span>
+                        <span className="flex items-center gap-2">
+                          {entry.originalPrice ? (
+                            <span className="text-slate-400 line-through">{entry.originalPrice}</span>
+                          ) : null}
+                          <span className="font-semibold text-slate-900">{entry.price}</span>
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -71,12 +77,7 @@ export default function ProvidersPage() {
 
                 {provider.notes ? <p className="text-sm leading-6 text-slate-600">{provider.notes}</p> : null}
 
-                <a
-                  href={`tel:${provider.phone.replace(/\s+/g, "")}`}
-                  className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  Call provider
-                </a>
+                <CallProviderButton providerId={provider.id} phone={provider.phone} />
               </CardContent>
             </Card>
           ))}

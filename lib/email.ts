@@ -134,3 +134,35 @@ export async function sendSupportFeedbackEmail(input: {
     text,
   });
 }
+
+export async function sendProviderContactNotificationEmail(input: {
+  providerName: string;
+  providerPhone: string;
+  contactedAt: Date;
+  userName?: string | null;
+  userEmail?: string | null;
+}) {
+  const appUrl = getAppUrl();
+  const contactedAtText = new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "full",
+    timeStyle: "long",
+    timeZone: "Asia/Kolkata",
+  }).format(input.contactedAt);
+
+  const text = [
+    "A provider call button was clicked on GoTogether.",
+    "",
+    `Provider: ${input.providerName}`,
+    `Provider phone: ${input.providerPhone}`,
+    `Contacted at: ${contactedAtText}`,
+    ...(input.userName ? [`User name: ${input.userName}`] : []),
+    ...(input.userEmail ? [`User email: ${input.userEmail}`] : []),
+    ...(appUrl ? ["", `App URL: ${appUrl}`] : []),
+  ].join("\n");
+
+  await sendEmail({
+    to: SUPPORT_EMAIL,
+    subject: `Provider contacted: ${input.providerName}`,
+    text,
+  });
+}
