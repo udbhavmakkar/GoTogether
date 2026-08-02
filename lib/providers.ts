@@ -15,33 +15,26 @@ export type Provider = {
 
 export const providers: Provider[] = [
   {
-    id: "waseem-taxis",
-    name: "Waseem Taxis",
-    phone: "8147199409",
-    cabTypes: ["Taxi service"],
-    pricing: [
-      {
-        label: "Chennai to Vellore",
-        price: "2500/-",
-      },
-      {
-        label: "Bangalore to Vellore",
-        originalPrice: "5000/-",
-        price: "4200/-",
-      },
-    ],
-    notes:
-      'While talking to the person, take the name of "GoTogether website" and they will give a discount. Any review of this person, put it in the suggestion/feedback box in the website.',
-  },
-  {
     id: "ganesh-taxis",
     name: "Ganesh Taxis",
     phone: "7829976680",
     cabTypes: ["Taxi service"],
     pricing: [
       {
-        label: "Chennai to Vellore",
-        price: "2100/-",
+        label: "Bangalore Airport to VIT",
+        price: "4200/-",
+      },
+      {
+        label: "VIT to Bangalore Airport",
+        price: "4200/-",
+      },
+      {
+        label: "VIT to Chennai Airport",
+        price: "2300/-",
+      },
+      {
+        label: "Chennai Airport to VIT",
+        price: "2300/-",
       },
     ],
     notes:
