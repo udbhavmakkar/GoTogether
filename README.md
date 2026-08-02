@@ -1,4 +1,5 @@
 # GoTogether
+https://gotogether-vit.vercel.app/
 
 GoTogether is a peer-to-peer ride coordination platform for the VIT community. Students and alumni can create shared rides, join existing groups, and coordinate through a ride-specific chat.
 
