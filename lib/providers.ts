@@ -30,11 +30,11 @@ export const providers: Provider[] = [
       },
       {
         label: "VIT to Chennai Airport",
-        price: "2300/-",
+        price: "2100/-",
       },
       {
         label: "Chennai Airport to VIT",
-        price: "2300/-",
+        price: "2100/-",
       },
     ],
     notes:
@@ -56,11 +56,11 @@ export const providers: Provider[] = [
       },
       {
         label: "VIT to Chennai Airport",
-        price: "2300/-",
+        price: "2100/-",
       },
       {
         label: "Chennai Airport to VIT",
-        price: "2300/-",
+        price: "2100/-",
       },
     ],
     notes:
