@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { getProviderById } from "@/lib/providers";
+
 const INACTIVITY_THRESHOLD_MS = 2 * 60 * 1000;
+const featuredProvider = getProviderById("latif-taxis");
 
 export function ProvidersAnnouncement() {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,19 +48,28 @@ export function ProvidersAnnouncement() {
     return null;
   }
 
+  if (!featuredProvider) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">New on GoTogether</p>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Ganesh Taxis</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900">{featuredProvider.name}</h2>
           <div className="space-y-2 text-sm leading-6 text-slate-600">
             <p>
-              <span className="font-semibold text-slate-900">Phone number:</span> 7829976680
+              <span className="font-semibold text-slate-900">Phone number:</span> {featuredProvider.phone}
             </p>
-            <p>
-              <span className="font-semibold text-slate-900">Price from Chennai to Vellore:</span> 2100/-
-            </p>
+            <div className="space-y-1 rounded-2xl bg-slate-50 px-4 py-3">
+              {featuredProvider.pricing.map((entry) => (
+                <div key={entry.label} className="flex items-start justify-between gap-4">
+                  <span>{entry.label}</span>
+                  <span className="shrink-0 font-semibold text-slate-900">{entry.price}</span>
+                </div>
+              ))}
+            </div>
             <p>
               While talking to the person, take the name of{" "}
               <span className="font-semibold text-slate-900">&quot;GoTogether website&quot;</span>. They will give

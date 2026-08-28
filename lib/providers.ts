@@ -40,6 +40,32 @@ export const providers: Provider[] = [
     notes:
       'While talking to the person, take the name of "GoTogether website" and they will give a discount. Any review of this person, put it in the suggestion/feedback box in the website.',
   },
+  {
+    id: "latif-taxis",
+    name: "Latif Taxis (MyVelloreTaxis)",
+    phone: "+91 8270888555",
+    cabTypes: ["Taxi service"],
+    pricing: [
+      {
+        label: "Bangalore Airport to VIT",
+        price: "4200/-",
+      },
+      {
+        label: "VIT to Bangalore Airport",
+        price: "4200/-",
+      },
+      {
+        label: "VIT to Chennai Airport",
+        price: "2300/-",
+      },
+      {
+        label: "Chennai Airport to VIT",
+        price: "2300/-",
+      },
+    ],
+    notes:
+      'While talking to the person, take the name of "GoTogether website" and they will give a discount. Any review of this person, put it in the suggestion/feedback box in the website.',
+  },
 ];
 
 export function getProviderById(providerId: string) {
