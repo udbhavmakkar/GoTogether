@@ -2,9 +2,14 @@ import Link from "next/link";
 
 import { CallProviderButton } from "@/components/call-provider-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/auth";
 import { providers } from "@/lib/providers";
 
-export default function ProvidersPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ProvidersPage() {
+  const currentUser = await getCurrentUser();
+
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
       <div className="space-y-4">
@@ -77,7 +82,11 @@ export default function ProvidersPage() {
 
                 {provider.notes ? <p className="text-sm leading-6 text-slate-600">{provider.notes}</p> : null}
 
-                <CallProviderButton providerId={provider.id} phone={provider.phone} />
+                <CallProviderButton
+                  providerId={provider.id}
+                  phone={provider.phone}
+                  isLoggedIn={Boolean(currentUser)}
+                />
               </CardContent>
             </Card>
           ))}

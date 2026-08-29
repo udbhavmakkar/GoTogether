@@ -32,6 +32,11 @@ export default async function LoginPage({
           You need to login first to open ride details.
         </div>
       ) : null}
+      {message === "provider-access" ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          You need to login first before calling a provider.
+        </div>
+      ) : null}
       <GoogleAuthCard mode="login" callbackUrl={callbackUrl} />
       <div className="text-sm text-slate-600">
         First time here?{" "}

@@ -9,6 +9,12 @@ type ProviderContactPayload = {
 };
 
 export async function POST(request: Request) {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return NextResponse.json({ error: "Please login before contacting a provider." }, { status: 401 });
+  }
+
   let payload: ProviderContactPayload;
 
   try {
@@ -27,14 +33,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Provider not found." }, { status: 404 });
   }
 
-  const currentUser = await getCurrentUser();
-
   await sendProviderContactNotificationEmail({
     providerName: provider.name,
     providerPhone: provider.phone,
     contactedAt: new Date(),
-    userName: currentUser?.name ?? null,
-    userEmail: currentUser?.email ?? null,
+    userName: currentUser.name,
+    userEmail: currentUser.email,
   });
 
   return NextResponse.json({ success: true });
