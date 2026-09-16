@@ -30,7 +30,7 @@ export default async function ProvidersPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-600">
             <p>Trusted cab providers will be listed here shortly.</p>
-            <p>Check back soon for provider contact numbers, cab types, and fare details.</p>
+            <p>Check back soon for provider booking options, cab types, and fare details.</p>
             <Link
               href="/feedback"
               className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
@@ -44,10 +44,7 @@ export default async function ProvidersPage() {
           {providers.map((provider) => (
             <Card key={provider.id} className="border-slate-200">
               <CardHeader className="space-y-3">
-                <div className="space-y-1">
-                  <CardTitle>{provider.name}</CardTitle>
-                  <p className="text-sm font-medium text-slate-600">{provider.phone}</p>
-                </div>
+                <CardTitle>{provider.name}</CardTitle>
                 <div className="flex flex-wrap gap-2">
                   {provider.cabTypes.map((cabType) => (
                     <span

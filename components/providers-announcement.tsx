@@ -59,9 +59,6 @@ export function ProvidersAnnouncement() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">New on GoTogether</p>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">{featuredProvider.name}</h2>
           <div className="space-y-2 text-sm leading-6 text-slate-600">
-            <p>
-              <span className="font-semibold text-slate-900">Phone number:</span> {featuredProvider.phone}
-            </p>
             <div className="space-y-1 rounded-2xl bg-slate-50 px-4 py-3">
               {featuredProvider.pricing.map((entry) => (
                 <div key={entry.label} className="flex items-start justify-between gap-4">
@@ -72,8 +69,8 @@ export function ProvidersAnnouncement() {
             </div>
             <p>
               While talking to the person, take the name of{" "}
-              <span className="font-semibold text-slate-900">&quot;GoTogether website&quot;</span>. They will give
-              discount also.
+              <span className="font-semibold text-slate-900">&quot;GoTogether website&quot;</span>. They might give
+              a discount as well.
             </p>
             <p>Any review of this person, put it in the suggestion/feedback box in the website.</p>
           </div>
