@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { sendProviderContactNotificationEmail } from "@/lib/email";
+import { createProviderContactFollowUp, sendProviderFollowUp } from "@/lib/provider-follow-ups";
 import { getProviderById } from "@/lib/providers";
 
 type ProviderContactPayload = {
@@ -33,13 +34,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Provider not found." }, { status: 404 });
   }
 
-  await sendProviderContactNotificationEmail({
+  const { followUp, created } = await createProviderContactFollowUp({
+    providerId: provider.id,
     providerName: provider.name,
-    providerPhone: provider.phone,
-    contactedAt: new Date(),
-    userName: currentUser.name,
-    userEmail: currentUser.email,
+    userId: currentUser.id,
   });
+  const [supportNotificationResult, customerFollowUpResult] = await Promise.allSettled([
+    sendProviderContactNotificationEmail({
+      providerName: provider.name,
+      providerPhone: provider.phone,
+      contactedAt: followUp.lastContactedAt,
+      userName: currentUser.name,
+      userEmail: currentUser.email,
+      followUpId: followUp.id,
+    }),
+    sendProviderFollowUp(followUp.id, currentUser.name),
+  ]);
 
-  return NextResponse.json({ success: true });
+  if (supportNotificationResult.status === "rejected") {
+    console.error("Unable to send provider contact notification", supportNotificationResult.reason);
+  }
+
+  if (customerFollowUpResult.status === "rejected") {
+    console.error("Unable to send customer booking confirmation", customerFollowUpResult.reason);
+  }
+
+  return NextResponse.json({
+    success: true,
+    followUpId: followUp.id,
+    duplicate: !created,
+    confirmationEmailSent:
+      customerFollowUpResult.status === "fulfilled" &&
+      (customerFollowUpResult.value.sent || customerFollowUpResult.value.reason === "ALREADY_SENT"),
+  });
 }

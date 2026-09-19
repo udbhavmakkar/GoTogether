@@ -18,33 +18,40 @@ enum NotificationType {
   CHAT_MESSAGE
 }
 
+enum ProviderFollowUpResponse {
+  BOOKED
+  NOT_BOOKED
+  DECIDING
+}
+
 model User {
-  id              String    @id @default(cuid())
-  name            String
-  email           String    @unique
-  passwordHash    String    @default("")
-  gender          Gender?
-  hostedRides     Ride[]    @relation("HostedRides")
-  rideBookings    Booking[]
-  sentMessages    Message[] @relation("SentMessages")
-  notifications   Notification[]
-  sessions        Session[]
-  createdAt       DateTime  @default(now())
+  id                String                    @id @default(cuid())
+  name              String
+  email             String                    @unique
+  passwordHash      String                    @default("")
+  gender            Gender?
+  hostedRides       Ride[]                    @relation("HostedRides")
+  rideBookings      Booking[]
+  sentMessages      Message[]                 @relation("SentMessages")
+  notifications     Notification[]
+  providerFollowUps ProviderContactFollowUp[]
+  sessions          Session[]
+  createdAt         DateTime                  @default(now())
 }
 
 model Ride {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   hostId        String
   startLocation String
   destination   String
   departureDate DateTime
   departureTime String
   totalSeats    Int
-  womenOnly     Boolean   @default(false)
+  womenOnly     Boolean        @default(false)
   notes         String?
   price         Float?
-  createdAt     DateTime  @default(now())
-  host          User      @relation("HostedRides", fields: [hostId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  host          User           @relation("HostedRides", fields: [hostId], references: [id], onDelete: Cascade)
   joinedUsers   Booking[]
   messages      Message[]
   notifications Notification[]
@@ -93,4 +100,31 @@ model Notification {
   ride      Ride?            @relation(fields: [rideId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead, createdAt])
+}
+
+model ProviderContactFollowUp {
+  id                String                    @id @default(cuid())
+  providerId        String
+  providerName      String
+  userId            String
+  contactDateKey    String
+  contactedAt       DateTime                  @default(now())
+  lastContactedAt   DateTime                  @default(now())
+  contactCount      Int                       @default(1)
+  followUpDueAt     DateTime
+  emailClaimedAt    DateTime?
+  emailSentAt       DateTime?
+  response          ProviderFollowUpResponse?
+  respondedAt       DateTime?
+  agreedFare        Int?
+  feedback          String?
+  responseTokenHash String                    @unique
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId, contactDateKey])
+  @@index([followUpDueAt, emailSentAt])
+  @@index([providerId, response])
+  @@index([userId, contactedAt])
 }

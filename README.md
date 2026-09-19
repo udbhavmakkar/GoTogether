@@ -19,6 +19,7 @@ GoTogether is not a cab-booking service and does not provide drivers, payments, 
 - In-app and email notifications for new members and chat messages
 - My Rides and Profile pages
 - Cab provider directory with call tracking notifications
+- Personalized provider follow-up emails with booking-conversion responses
 - Feedback form connected to GoTogether support
 - Automatic deletion of expired rides and their related bookings, messages, and notifications
 - Responsive mobile and desktop experience
@@ -106,20 +107,29 @@ GoTogether is not a cab-booking service and does not provide drivers, payments, 
 
    The Gmail account must have 2-Step Verification enabled before an App Password can be created. Never commit credentials or `.env.local`.
 
-5. Create/update the database schema and generate Prisma Client:
+5. Configure the provider follow-up retry worker:
+
+   ```env
+   FOLLOW_UP_JOB_SECRET="replace-with-a-secure-random-value"
+   PROVIDER_FOLLOW_UP_DELAY_HOURS="3"
+   ```
+
+   The personalized booking-check email is sent immediately when a logged-in user clicks **Call provider**. Create `FOLLOW_UP_JOB_SECRET` with `openssl rand -base64 32`, keep the retry delay between `2` and `4` hours, and add the same secret to Vercel and GitHub Actions. The hourly workflow retries records whose immediate Gmail delivery failed.
+
+6. Create/update the database schema and generate Prisma Client:
 
    ```bash
    npm run db:push
    npm run db:generate
    ```
 
-6. Start the development server:
+7. Start the development server:
 
    ```bash
    npm run dev
    ```
 
-7. Open [http://localhost:3000](http://localhost:3000).
+8. Open [http://localhost:3000](http://localhost:3000).
 
 ## Google OAuth setup
 
@@ -185,6 +195,26 @@ npm run lint
 npm run build
 ```
 
+## Testing provider follow-ups locally
+
+Test the provider follow-up flow during development:
+
+1. Run `npm run db:push`, then start the app with `npm run dev`.
+2. Log in, open `/providers`, and click **Call provider**. The phone dialer opens while the contact is recorded and the personalized email is sent to the logged-in account.
+3. Confirm that the email contains the user's first name and the three booking-response buttons.
+4. To test the retry endpoint, copy the `followUpId` from the `/api/providers/contact` response and trigger the protected worker manually:
+
+   ```bash
+   curl -X POST http://localhost:3000/api/provider-follow-ups/send \
+     -H "Authorization: Bearer YOUR_LOCAL_FOLLOW_UP_JOB_SECRET" \
+     -H "Content-Type: application/json" \
+     --data '{"followUpId":"YOUR_FOLLOW_UP_ID"}'
+   ```
+
+5. Click each response in separate test records. The first response for a record is preserved. A booked response displays the optional fare and feedback form.
+
+In production, the hourly GitHub Actions workflow is a retry safety net for immediate deliveries that failed.
+
 ## Deploying to Vercel
 
 Add these environment variables to the Vercel project for the Production environment:
@@ -199,6 +229,8 @@ NEXTAUTH_URL
 NEXT_PUBLIC_APP_URL
 SMTP_GMAIL_USER                 # optional, required for email notifications
 SMTP_GMAIL_APP_PASSWORD         # optional, required for email notifications
+FOLLOW_UP_JOB_SECRET            # required for delayed provider follow-ups
+PROVIDER_FOLLOW_UP_DELAY_HOURS  # optional; defaults to 3 and is clamped to 2–4
 CRON_SECRET                     # optional additional protection for cleanup requests
 ```
 
@@ -217,5 +249,6 @@ The Vercel cron in `vercel.json` calls `/api/cron/cleanup-rides` daily. PostgreS
 - API route handlers live under `app/api`, which is the App Router convention.
 - PostgreSQL is configured in `prisma/schema.prisma` through `DATABASE_URL`.
 - Email delivery is optional. Core ride features continue to work if SMTP is unavailable, but external email notifications will not be sent.
+- Provider follow-up leads are deduplicated by user, provider, and India contact date. The email uses the recorded contact date/time because route and ride-date details are not collected. Response links use random tokens whose hashes are stored in PostgreSQL.
 - Provider details and prices are informational. Users must confirm availability, pricing, and travel arrangements directly with the provider.
 - This repository does not include payments, live location tracking, real-time sockets, or cab-driver assignment.

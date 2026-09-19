@@ -123,18 +123,17 @@ export async function sendFeedback(payload: {
 }
 
 export function notifyProviderContact(providerId: string) {
-  const payload = JSON.stringify({ providerId });
+  const body = JSON.stringify({ providerId });
 
-  if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
-    const blob = new Blob([payload], { type: "application/json" });
-    navigator.sendBeacon("/api/providers/contact", blob);
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon("/api/providers/contact", new Blob([body], { type: "application/json" }));
     return;
   }
 
   void fetch("/api/providers/contact", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: payload,
+    body,
     keepalive: true,
   });
 }

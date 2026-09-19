@@ -1,0 +1,19 @@
+name: Send provider follow-ups
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send-due-follow-ups:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger GoTogether follow-up worker
+        env:
+          FOLLOW_UP_JOB_SECRET: ${{ secrets.FOLLOW_UP_JOB_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --retry 2 \
+            --request POST \
+            --header "Authorization: Bearer ${FOLLOW_UP_JOB_SECRET}" \
+            https://gotogether-vit.vercel.app/api/provider-follow-ups/send-due
