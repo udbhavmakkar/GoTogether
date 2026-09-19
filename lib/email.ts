@@ -298,3 +298,42 @@ export async function sendProviderFollowUpEmail(input: {
     html,
   });
 }
+
+export async function sendProviderFollowUpResponseNotificationEmail(input: {
+  customerName: string;
+  customerEmail: string;
+  providerName: string;
+  response: "BOOKED" | "NOT_BOOKED" | "DECIDING";
+  contactedAt: Date;
+  respondedAt: Date;
+  followUpId: string;
+}) {
+  const responseLabels = {
+    BOOKED: "Booked the cab",
+    NOT_BOOKED: "Did not book the cab",
+    DECIDING: "Still deciding",
+  } as const;
+  const responseLabel = responseLabels[input.response];
+  const dateFormatter = new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "Asia/Kolkata",
+  });
+  const text = [
+    "A customer responded to the GoTogether booking confirmation.",
+    "",
+    `Customer: ${input.customerName}`,
+    `Customer email: ${input.customerEmail}`,
+    `Provider: ${input.providerName}`,
+    `Response: ${responseLabel}`,
+    `Provider contacted: ${dateFormatter.format(input.contactedAt)}`,
+    `Response received: ${dateFormatter.format(input.respondedAt)}`,
+    `Lead ID: ${input.followUpId}`,
+  ].join("\n");
+
+  await sendEmail({
+    to: SUPPORT_EMAIL,
+    subject: `Cab booking response: ${responseLabel} - ${input.customerName}`,
+    text,
+  });
+}

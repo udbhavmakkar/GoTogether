@@ -1,6 +1,7 @@
 import { ProviderFollowUpResponse } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+import { sendProviderFollowUpResponseNotificationEmail } from "@/lib/email";
 import { recordProviderFollowUpResponse } from "@/lib/provider-follow-ups";
 
 const ALLOWED_RESPONSES = new Set<ProviderFollowUpResponse>([
@@ -20,17 +21,41 @@ export async function GET(request: Request) {
     return NextResponse.redirect(confirmationUrl, 303);
   }
 
-  const followUp = await recordProviderFollowUpResponse(token, rawResponse as ProviderFollowUpResponse);
+  const result = await recordProviderFollowUpResponse(token, rawResponse as ProviderFollowUpResponse);
 
-  if (!followUp?.response) {
+  if (!result) {
     confirmationUrl.searchParams.set("status", "invalid");
     return NextResponse.redirect(confirmationUrl, 303);
   }
 
-  confirmationUrl.searchParams.set("status", "recorded");
-  confirmationUrl.searchParams.set("response", followUp.response);
+  const { followUp, recorded } = result;
+  const recordedResponse = followUp.response;
 
-  if (followUp.response === ProviderFollowUpResponse.BOOKED) {
+  if (!recordedResponse) {
+    confirmationUrl.searchParams.set("status", "invalid");
+    return NextResponse.redirect(confirmationUrl, 303);
+  }
+
+  if (recorded && followUp.respondedAt) {
+    try {
+      await sendProviderFollowUpResponseNotificationEmail({
+        customerName: followUp.user.name,
+        customerEmail: followUp.user.email,
+        providerName: followUp.providerName,
+        response: recordedResponse,
+        contactedAt: followUp.contactedAt,
+        respondedAt: followUp.respondedAt,
+        followUpId: followUp.id,
+      });
+    } catch (error) {
+      console.error("Unable to send provider booking response notification", error);
+    }
+  }
+
+  confirmationUrl.searchParams.set("status", "recorded");
+  confirmationUrl.searchParams.set("response", recordedResponse);
+
+  if (recordedResponse === ProviderFollowUpResponse.BOOKED) {
     confirmationUrl.searchParams.set("token", token);
   }
 

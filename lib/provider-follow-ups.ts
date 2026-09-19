@@ -212,20 +212,31 @@ export async function recordProviderFollowUpResponse(token: string, response: Pr
     return null;
   }
 
-  if (!existing.response) {
-    await prisma.providerContactFollowUp.updateMany({
-      where: {
-        id: existing.id,
-        response: null,
-      },
-      data: {
-        response,
-        respondedAt: new Date(),
-      },
-    });
-  }
+  const respondedAt = new Date();
+  const updated = await prisma.providerContactFollowUp.updateMany({
+    where: {
+      id: existing.id,
+      response: null,
+    },
+    data: {
+      response,
+      respondedAt,
+    },
+  });
 
-  return prisma.providerContactFollowUp.findUnique({ where: { id: existing.id } });
+  const followUp = await prisma.providerContactFollowUp.findUnique({
+    where: { id: existing.id },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return followUp ? { followUp, recorded: updated.count === 1 } : null;
 }
 
 export async function saveProviderFollowUpFeedback(input: {
