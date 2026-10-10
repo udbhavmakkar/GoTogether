@@ -23,6 +23,14 @@ export default async function ProvidersPage() {
         </div>
       </div>
 
+      <aside className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-950">
+        <p className="font-semibold">Provider update: Ganesh Taxis</p>
+        <p className="mt-1">
+          Ganesh Taxis is no longer in contact with GoTogether and is not currently a listed provider. We do not
+          recommend Ganesh Taxis for bookings at this time. Any booking made directly with them is outside GoTogether.
+        </p>
+      </aside>
+
       {providers.length === 0 ? (
         <Card className="mt-8 border-slate-200">
           <CardHeader>
