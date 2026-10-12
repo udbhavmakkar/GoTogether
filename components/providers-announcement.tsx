@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { getProviderById } from "@/lib/providers";
@@ -9,10 +10,17 @@ const INACTIVITY_THRESHOLD_MS = 2 * 60 * 1000;
 const featuredProvider = getProviderById("latif-taxis");
 
 export function ProvidersAnnouncement() {
+  const pathname = usePathname();
+  const isProvidersPage = pathname === "/providers";
   const [isOpen, setIsOpen] = useState(false);
   const lastActiveAtRef = useRef(Date.now());
 
   useEffect(() => {
+    if (isProvidersPage) {
+      setIsOpen(false);
+      return;
+    }
+
     setIsOpen(true);
 
     function markActive() {
@@ -42,9 +50,9 @@ export function ProvidersAnnouncement() {
       window.removeEventListener("focus", maybeReopen);
       document.removeEventListener("visibilitychange", maybeReopen);
     };
-  }, []);
+  }, [isProvidersPage]);
 
-  if (!isOpen) {
+  if (!isOpen || isProvidersPage) {
     return null;
   }
 
@@ -68,9 +76,9 @@ export function ProvidersAnnouncement() {
               ))}
             </div>
             <p>
-              While talking to the person, take the name of{" "}
-              <span className="font-semibold text-slate-900">&quot;GoTogether website&quot;</span>. They might give
-              a discount as well.
+              Mention <span className="font-semibold text-slate-900">&quot;GoTogether&quot;</span> on the call to
+              receive our agreed discount with Latif Taxis. Diwali fares vary with demand, so please confirm the
+              final fare before booking.
             </p>
             <p>Any review of this person, put it in the suggestion/feedback box in the website.</p>
           </div>

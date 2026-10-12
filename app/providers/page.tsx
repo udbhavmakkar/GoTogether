@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CallProviderButton } from "@/components/call-provider-button";
+import { ProviderSeasonalNotice } from "@/components/provider-seasonal-notice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { providers } from "@/lib/providers";
@@ -12,6 +13,7 @@ export default async function ProvidersPage() {
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <ProviderSeasonalNotice />
       <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">Providers</p>
         <div className="space-y-2">
@@ -71,10 +73,10 @@ export default async function ProvidersPage() {
                     {provider.pricing.map((entry) => (
                       <div
                         key={`${provider.id}-${entry.label}`}
-                        className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                       >
                         <span className="text-slate-600">{entry.label}</span>
-                        <span className="flex items-center gap-2">
+                        <span className="flex shrink-0 items-center gap-2">
                           {entry.originalPrice ? (
                             <span className="text-slate-400 line-through">{entry.originalPrice}</span>
                           ) : null}

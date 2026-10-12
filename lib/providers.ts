@@ -30,15 +30,15 @@ export const providers: Provider[] = [
       },
       {
         label: "VIT to Chennai Airport",
-        price: "2100/-",
+        price: "From 2500/-",
       },
       {
         label: "Chennai Airport to VIT",
-        price: "2100/-",
+        price: "From 2500/-",
       },
     ],
     notes:
-      'While talking to the person, take the name of "GoTogether website" and they will give a discount. Any review of this person, put it in the suggestion/feedback box in the website.',
+      'Fares may rise during Diwali and vary with demand. Mention "GoTogether" on the call to receive our agreed discount with Latif Taxis. Confirm the final fare directly before booking. You can share your experience through our feedback page.',
   },
 ];
 
